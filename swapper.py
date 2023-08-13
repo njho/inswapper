@@ -13,6 +13,8 @@ import insightface
 import numpy as np
 from PIL import Image
 
+from restoration import *
+
 
 def getFaceSwapModel(model_path: str):
     model = insightface.model_zoo.get_model(model_path)
@@ -270,40 +272,38 @@ def do_swap(
         source_img, target_img, source_indexes, target_indexes, model
     )
 
-    # if face_restore:
-    #     from restoration import *
+    if face_restore:
+        # make sure the ckpts downloaded successfully
+        check_ckpts()
 
-    #     # make sure the ckpts downloaded successfully
-    #     check_ckpts()
+        # https://huggingface.co/spaces/sczhou/CodeFormer
+        upsampler = set_realesrgan()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    #     # https://huggingface.co/spaces/sczhou/CodeFormer
-    #     upsampler = set_realesrgan()
-    #     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        codeformer_net = ARCH_REGISTRY.get("CodeFormer")(
+            dim_embd=512,
+            codebook_size=1024,
+            n_head=8,
+            n_layers=9,
+            connect_list=["32", "64", "128", "256"],
+        ).to(device)
+        ckpt_path = "CodeFormer/CodeFormer/weights/CodeFormer/codeformer.pth"
+        checkpoint = torch.load(ckpt_path)["params_ema"]
+        codeformer_net.load_state_dict(checkpoint)
+        codeformer_net.eval()
 
-    #     codeformer_net = ARCH_REGISTRY.get("CodeFormer")(
-    #         dim_embd=512,
-    #         codebook_size=1024,
-    #         n_head=8,
-    #         n_layers=9,
-    #         connect_list=["32", "64", "128", "256"],
-    #     ).to(device)
-    #     ckpt_path = "CodeFormer/CodeFormer/weights/CodeFormer/codeformer.pth"
-    #     checkpoint = torch.load(ckpt_path)["params_ema"]
-    #     codeformer_net.load_state_dict(checkpoint)
-    #     codeformer_net.eval()
-
-    #     result_image = cv2.cvtColor(np.array(result_image), cv2.COLOR_RGB2BGR)
-    #     result_image = face_restoration(
-    #         result_image,
-    #         background_enhance,
-    #         face_upsample,
-    #         upscale,
-    #         codeformer_fidelity,
-    #         upsampler,
-    #         codeformer_net,
-    #         device,
-    #     )
-    #     result_image = Image.fromarray(result_image)
+        result_image = cv2.cvtColor(np.array(result_image), cv2.COLOR_RGB2BGR)
+        result_image = face_restoration(
+            result_image,
+            background_enhance,
+            face_upsample,
+            upscale,
+            codeformer_fidelity,
+            upsampler,
+            codeformer_net,
+            device,
+        )
+        result_image = Image.fromarray(result_image)
 
     # save result
     result_image.save(output_img)

@@ -1,5 +1,6 @@
 pillow>=9.5.0
 protobuf>=4.23.2
+basicsr==1.4.2
 addict
 future
 lmdb

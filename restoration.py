@@ -6,15 +6,13 @@ import torch
 import torch.nn.functional as F
 from torchvision.transforms.functional import normalize
 
-from CodeFormer.CodeFormer.basicsr.archs.rrdbnet_arch import RRDBNet
-from CodeFormer.CodeFormer.basicsr.utils import img2tensor, imwrite, tensor2img
-from CodeFormer.CodeFormer.basicsr.utils.download_util import load_file_from_url
-from CodeFormer.CodeFormer.basicsr.utils.realesrgan_utils import RealESRGANer
-from CodeFormer.CodeFormer.basicsr.utils.registry import ARCH_REGISTRY
-from CodeFormer.CodeFormer.facelib.utils.face_restoration_helper import (
-    FaceRestoreHelper,
-)
-from CodeFormer.CodeFormer.facelib.utils.misc import is_gray
+from basicsr.archs.rrdbnet_arch import RRDBNet
+from basicsr.utils import img2tensor, imwrite, tensor2img
+from basicsr.utils.download_util import load_file_from_url
+from basicsr.utils.realesrgan_utils import RealESRGANer
+from basicsr.utils.registry import ARCH_REGISTRY
+from facelib.utils.face_restoration_helper import FaceRestoreHelper
+from facelib.utils.misc import is_gray
 
 
 def check_ckpts():

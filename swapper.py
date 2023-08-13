@@ -81,16 +81,26 @@ def process(
     num_target_faces = len(target_faces)
     num_source_images = len(source_img)
 
+    print(f"Found num faces on the target image: {len(target_faces)}")
+
+    print(num_source_images, num_target_faces)
+
+    for item in target_faces:
+        print(item["bbox"])
+
     if target_faces is not None:
         temp_frame = copy.deepcopy(target_img)
         if isinstance(source_img, list) and num_source_images == num_target_faces:
             print("Replacing faces in target image from the left to the right by order")
+
+            # For each target face,
             for i in range(num_target_faces):
                 source_faces = get_many_faces(
                     face_analyser,
                     cv2.cvtColor(np.array(source_img[i]), cv2.COLOR_RGB2BGR),
                 )
-                source_index = i
+                print(f"Found this many source faces: {len(source_faces)}")
+                source_index = i if i < len(source_faces) - 1 else len(source_faces) - 1
                 target_index = i
 
                 if source_faces is None:
@@ -251,8 +261,11 @@ def do_swap(
     # download from https://huggingface.co/deepinsight/inswapper/tree/main
     model = "./checkpoints/inswapper_128.onnx"
 
-    print(source_indexes)
-    print(target_indexes)
+    print(f"There is {len(source_img)} source images")
+    print(f"There is 1 target images")
+    print(f"Processing source indexes {source_indexes}")
+    print(f"Process target indexes {target_indexes}")
+
     result_image = process(
         source_img, target_img, source_indexes, target_indexes, model
     )
